@@ -67,6 +67,34 @@ app.post('/links', (req, res, next) => {
     });
 });
 
+// app.post('/login', (req, res) => {
+//   try {
+//     models.Users.compare(req.body);
+//   } catch (err) {
+//     console.log({ message: err.message });
+//   }
+// });
+
+app.post('/signup', async (req, res) => {
+  try {
+    // check if user exists already
+    const user = { username: req.body.username, password: req.body.password };
+
+    const fetchedUser = await models.Users.get({ username: user.username });
+
+    if (fetchedUser?.username === user?.username) {
+      // redirect to signup if already exists
+      res.redirect('/signup');
+    } else {
+      const response = models.Users.create(user);
+      res.status(200);
+      res.redirect('/');
+    }
+  } catch (err) {
+    console.log({ message: err.message });
+    res.status(400).send({ message: err.message });
+  }
+});
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
