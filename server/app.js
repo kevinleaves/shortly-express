@@ -67,13 +67,32 @@ app.post('/links', (req, res, next) => {
     });
 });
 
-// app.post('/login', (req, res) => {
-//   try {
-//     models.Users.compare(req.body);
-//   } catch (err) {
-//     console.log({ message: err.message });
-//   }
-// });
+app.post('/login', async (req, res) => {
+  try {
+    const user = { username: req.body.username, password: req.body.password };
+
+    // check if username + salted password are valid in DB
+    const fetchedUser = await models.Users.get({
+      username: user.username,
+    });
+
+    const valid = models.Users.compare(
+      user.password,
+      fetchedUser?.password,
+      fetchedUser?.salt
+    );
+    if (valid) {
+      res.status(200);
+      res.redirect('/');
+    } else {
+      // user entered incorrect password or does not exist in the DB
+      res.status(200);
+      res.redirect('/login');
+    }
+  } catch (err) {
+    console.log({ message: err.message });
+  }
+});
 
 app.post('/signup', async (req, res) => {
   try {
